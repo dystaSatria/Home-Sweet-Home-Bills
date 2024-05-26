@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendataan Pembayaran Bulanan</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding-top: 50px;
+    }
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .no-delete {
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center mb-4">Pendataan Pembayaran Bulanan</h2>
+    <form id="paymentForm">
+      <div class="form-group">
+        <label for="month">Bulan:</label>
+        <input type="text" class="form-control" id="month" readonly>
+      </div>
+      <div class="form-group">
+        <label for="name">Nama:</label>
+        <select class="form-control" id="name">
+          <option value="Reza">Reza</option>
+          <option value="Padil">Padil</option>
+          <option value="Lutfi">Lutfi</option>
+          <option value="Rajiq">Rajiq</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wifi">Pembayaran WiFi:</label>
+        <input type="number" class="form-control" id="wifi" placeholder="Masukkan jumlah pembayaran WiFi">
+      </div>
+      <div class="form-group">
+        <label for="gas">Pembayaran Gas:</label>
+        <input type="number" class="form-control" id="gas" placeholder="Masukkan jumlah pembayaran Gas">
+      </div>
+      <div class="form-group">
+        <label for="electricity">Pembayaran Listrik:</label>
+        <input type="number" class="form-control" id="electricity" placeholder="Masukkan jumlah pembayaran Listrik">
+      </div>
+      <div class="form-group">
+        <label for="water">Pembayaran Air:</label>
+        <input type="number" class="form-control" id="water" placeholder="Masukkan jumlah pembayaran Air">
+      </div>
+      <button type="submit" class="btn btn-primary">Simpan</button>
+    </form>
+    <div id="totalPayments" class="mt-4"></div>
+    <h2 class="text-center mb-4 mt-5">Data Pembayaran Tersimpan</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Bulan</th>
+          <th>WiFi</th>
+          <th>Gas</th>
+          <th>Listrik</th>
+          <th>Air</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="paymentTableBody">
+        <!-- Data pembayaran akan ditampilkan di sini -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Set bulan secara otomatis
+      var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      var today = new Date();
+      var month = months[today.getMonth()] + ' ' + today.getFullYear();
+      $('#month').val(month);
+
+      // Tampilkan total pembayaran saat form disubmit
+      $('#paymentForm').submit(function(event) {
+        event.preventDefault();
+        var name = $('#name').val();
+        var wifi = parseInt($('#wifi').val()) || 0;
+        var gas = parseInt($('#gas').val()) || 0;
+        var electricity = parseInt($('#electricity').val()) || 0;
+        var water = parseInt($('#water').val()) || 0;
+        var total = wifi + gas + electricity + water;
+        var paymentData = {
+          name: name,
+          wifi: wifi,
+          gas: gas,
+          electricity: electricity,
+          water: water,
+          total: total
+        };
+        savePaymentData(paymentData);
+        displayTotalPayment(paymentData);
+        displayAllPayments(); // Menampilkan semua data pembayaran
+      });
+
+      // Function untuk menyimpan data pembayaran
+      function savePaymentData(paymentData) {
+        var savedData = JSON.parse(localStorage.getItem('paymentData')) || [];
+        savedData.push(paymentData);
+        localStorage.setItem('paymentData', JSON.stringify(savedData));
+      }
+
+      // Function untuk menampilkan total pembayaran
+      function displayTotalPayment(paymentData) {
+        $('#totalPayments').html('<p>Total Pembayaran untuk ' + paymentData.name + ' pada bulan ' + month + ': <strong>Rp ' + paymentData.total.toLocaleString() + '</strong></p>');
+      }
+
+      // Function untuk menampilkan semua data pembayaran yang tersimpan
+      function displayAllPayments() {
+        var savedData = JSON.parse(localStorage.getItem('paymentData')) || [];
+        var tableBody = $('#paymentTableBody');
+        tableBody.empty();
+        savedData.forEach(function(payment) {
+          var row = '<tr>' +
+                      '<td>' + payment.name + '</td>' +
+                      '<td>' + month + '</td>' +
+                      '<td>' + payment.wifi.toLocaleString() + '</td>' +
+                      '<td>' + payment.gas.toLocaleString() + '</td>' +
+                      '<td>' + payment.electricity.toLocaleString() + '</td>' +
+                      '<td>' + payment.water.toLocaleString() + '</td>' +
+                      '<td>' + payment.total.toLocaleString() + '</td>' +
+                    '</tr>';
+          tableBody.append(row);
+        });
+      }
+
+      // Menampilkan semua data pembayaran saat halaman dimuat
+      displayAllPayments();
+    });
+  </script>
+</body>
+</html>
